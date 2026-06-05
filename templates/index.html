@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection AI</title>
+
+```
+<link rel="stylesheet" href="/static/style.css">
+```
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<div class="header">
+    <h1>🛡 Fraud Detection AI</h1>
+    <p>Real-Time Credit Card Transaction Analysis</p>
+</div>
+
+<form id="predictionForm">
+
+    <div class="card">
+
+        <h2>Transaction Information</h2>
+
+        <div class="grid-two">
+
+            <div>
+                <label>Transaction Time</label>
+                <input
+                    type="number"
+                    step="any"
+                    id="Time"
+                    required>
+            </div>
+
+            <div>
+                <label>Transaction Amount</label>
+                <input
+                    type="number"
+                    step="any"
+                    id="Amount"
+                    required>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Principal Components (V1 - V28)</h2>
+
+        <div
+            class="feature-grid"
+            id="vInputs">
+
+        </div>
+
+    </div>
+
+    <div class="button-group">
+
+        <button
+            type="submit"
+            class="predict-btn">
+
+            Analyze Transaction
+
+        </button>
+
+        <button
+            type="button"
+            class="clear-btn"
+            onclick="clearForm()">
+
+            Clear Form
+
+        </button>
+
+    </div>
+
+</form>
+
+<div
+    class="result-card"
+    id="resultCard">
+
+    <h2>Risk Analysis Result</h2>
+
+    <h3 id="prediction">
+        Awaiting Analysis...
+    </h3>
+
+    <p id="probability"></p>
+
+    <div class="progress-container">
+
+        <div
+            id="progressBar"
+            class="progress-bar">
+
+            0%
+
+        </div>
+
+    </div>
+
+    <h3 id="riskLevel"></h3>
+
+</div>
+```
+
+</div>
+
+<script>
+
+const vContainer =
+document.getElementById("vInputs");
+
+for(let i=1;i<=28;i++){
+
+    vContainer.innerHTML += `
+    <div>
+
+        <label>V${i}</label>
+
+        <input
+            type="number"
+            step="any"
+            id="V${i}"
+            required>
+
+    </div>
+    `;
+}
+
+document
+.getElementById("predictionForm")
+.addEventListener(
+"submit",
+async function(e){
+
+    e.preventDefault();
+
+    try{
+
+        let payload = {};
+
+        payload["Time"] =
+        parseFloat(
+            document
+            .getElementById("Time")
+            .value
+        );
+
+        payload["Amount"] =
+        parseFloat(
+            document
+            .getElementById("Amount")
+            .value
+        );
+
+        for(let i=1;i<=28;i++){
+
+            payload[`V${i}`] =
+            parseFloat(
+                document
+                .getElementById(`V${i}`)
+                .value
+            );
+        }
+
+        const response =
+        await fetch(
+            "/predict",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                JSON.stringify(payload)
+            }
+        );
+
+        if(!response.ok){
+
+            throw new Error(
+                "Prediction Failed"
+            );
+        }
+
+        const result =
+        await response.json();
+
+        updateResult(result);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Prediction Failed. Check Console."
+        );
+    }
+
+});
+
+function updateResult(result){
+
+    const fraudProb =
+    (
+        result.fraud_probability * 100
+    ).toFixed(2);
+
+    const prediction =
+    document
+    .getElementById("prediction");
+
+    const probability =
+    document
+    .getElementById("probability");
+
+    const progressBar =
+    document
+    .getElementById("progressBar");
+
+    const riskLevel =
+    document
+    .getElementById("riskLevel");
+
+    probability.innerHTML =
+    `Fraud Probability: ${fraudProb}%`;
+
+    progressBar.style.width =
+    fraudProb + "%";
+
+    progressBar.innerHTML =
+    fraudProb + "%";
+
+    progressBar.className =
+    "progress-bar";
+
+    if(fraudProb < 30){
+
+        progressBar.classList.add(
+            "low-risk"
+        );
+
+        prediction.innerHTML =
+        "🟢 Legitimate Transaction";
+
+        prediction.style.color =
+        "#16a34a";
+
+        riskLevel.innerHTML =
+        "🟢 Low Risk";
+
+    }
+
+    else if(fraudProb < 70){
+
+        progressBar.classList.add(
+            "medium-risk"
+        );
+
+        prediction.innerHTML =
+        "🟠 Suspicious Transaction";
+
+        prediction.style.color =
+        "#f59e0b";
+
+        riskLevel.innerHTML =
+        "🟠 Medium Risk";
+    }
+
+    else{
+
+        progressBar.classList.add(
+            "high-risk"
+        );
+
+        prediction.innerHTML =
+        "🔴 Fraudulent Transaction";
+
+        prediction.style.color =
+        "#dc2626";
+
+        riskLevel.innerHTML =
+        "🔴 High Risk";
+    }
+
+}
+
+function clearForm(){
+
+    document
+    .getElementById(
+        "predictionForm"
+    )
+    .reset();
+
+    document
+    .getElementById(
+        "prediction"
+    )
+    .innerHTML =
+    "Awaiting Analysis...";
+
+    document
+    .getElementById(
+        "probability"
+    )
+    .innerHTML = "";
+
+    document
+    .getElementById(
+        "riskLevel"
+    )
+    .innerHTML = "";
+
+    const progressBar =
+    document
+    .getElementById(
+        "progressBar"
+    );
+
+    progressBar.style.width =
+    "0%";
+
+    progressBar.innerHTML =
+    "0%";
+
+    progressBar.className =
+    "progress-bar";
+}
+
+</script>
+
+</body>
+</html>
