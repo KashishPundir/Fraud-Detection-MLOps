@@ -94,6 +94,10 @@ MLflow Tracking
 Model Registry
         ↓
 Docker Deployment
+        ↓
+Github Actions
+        ↓
+Render Deployment
 ```
 
 ---
