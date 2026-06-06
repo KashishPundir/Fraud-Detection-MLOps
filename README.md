@@ -85,6 +85,14 @@ Model Evaluation
         ↓
 Fraud Prediction API
         ↓
+Production Model
+        ↓
+    Prediction
+        ↓
+MLflow Tracking
+        ↓
+Model Registry
+        ↓
 Docker Deployment
 ```
 
