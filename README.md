@@ -132,10 +132,13 @@ docker build -t fraud-api .
 
 ```bash
 docker run -p 8000:8000 fraud-api
+
 ```
 
 Then run in browser: http://localhost:8000
 ---
+
+https://fraud-detection-mlops-3llr.onrender.com
 
 ## 📈 Business Impact
 
